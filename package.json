@@ -1,0 +1,30 @@
+{
+  "name": "aram-ranked-server",
+  "version": "1.0.0",
+  "description": "A simple http server that stores users history",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon .",
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/romaindurand/aram-ranked-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/romaindurand/aram-ranked-server/issues"
+  },
+  "homepage": "https://github.com/romaindurand/aram-ranked-server#readme",
+  "dependencies": {
+    "aram-ranked": "^0.2.1",
+    "express": "^4.15.2",
+    "lowdb": "^0.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0",
+    "standard": "^9.0.2"
+  }
+}
