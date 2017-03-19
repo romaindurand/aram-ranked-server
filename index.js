@@ -10,23 +10,51 @@ db.defaults({
   history: []
 }).write()
 
-app.get('/getUserByName', function (req, res) {
-  if (!checkRequestParams(req, ['server', 'username'], res)) return
-  let user = db.get('users').find({ username: req.query.username }).value()
-  if (!user) {
-    new User(req.query.server, req.query.username).then(user => {
-      res.send(JSON.stringify(user, null, 2))
+app.get('/getUser', function (req, res) {
+  res.setHeader('Content-Type', 'application/json')
+  if (!checkRequestParams(req, ['server'], res)) return
+
+  if (!req.query.name || !req.query.id) {
+    res.send(400, 'Missing parameter : name or id required')
+    return
+  }
+
+  if (req.query.name) {
+    if (!checkRequestParams(req, ['name'], res)) return
+    let user = db.get('users').value().find(user => {
+      return normalizeUsername(user.username) === normalizeUsername(req.query.name)
     })
+    if (!user) {
+      new User(req.query.server, req.query.name).then(user => {
+        db.get('users').push(user).write()
+        res.send(JSON.stringify(user))
+      })
+    } else {
+      res.send(JSON.stringify(user))
+    }
+    return
+  }
+
+  if (req.query.id) {
+    if (!checkRequestParams(req, {name: 'id', type: Number}, res)) return
+    let user = db.get('users').value().find(user => +user.id === +req.query.id)
+    if (!user) {
+      new User(req.query.server, req.query.username).then(user => {
+        db.get('users').push(user).write()
+        res.send(JSON.stringify(user))
+      })
+    } else {
+      res.send(JSON.stringify(user))
+    }
   }
 })
 
-app.get('/getUserById', function (req, res) {
-  if (!checkRequestParams(req, {name: 'id', type: Number}, res)) return
-  let user = db.get('users').find({ id: req.params.id }).value()
-  res.send(user)
-})
-
 app.listen(3000)
+
+function normalizeUsername (username) {
+  if (!username) return ''
+  return username.toLowerCase().replace(/\s/g, '')
+}
 
 function checkRequestParams (req, requiredParams, res) {
   if (typeof requiredParams === 'string') {
@@ -53,6 +81,7 @@ function checkRequestParams (req, requiredParams, res) {
     }
   }
   if (!errors.length) return true
+  res.setHeader('Content-Type', 'text/plain')
   res.send(400, `Error${errors.length > 1 ? 's' : ''} :
 ${errors.join('\n')}`)
   return false
