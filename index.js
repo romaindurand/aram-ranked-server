@@ -4,17 +4,30 @@ const express = require('express')
 
 const db = lowdb('db.json')
 const app = express()
+const q = []
 
 db.defaults({
   users: [],
   history: []
 }).write()
 
+setTimeout(() => {
+  const task = q.shift()
+  if (!task) return
+}, 1000)
+
+setTimeout(() => {
+  db.get('users').value().forEach(user => {
+    const userId = +user.summonerId
+    debugger
+  })
+}, 1000 * 60 * 3)
+
 app.get('/getUser', function (req, res) {
   res.setHeader('Content-Type', 'application/json')
   if (!checkRequestParams(req, ['server'], res)) return
 
-  if (!req.query.name || !req.query.id) {
+  if (!req.query.name && !req.query.id) {
     res.send(400, 'Missing parameter : name or id required')
     return
   }
